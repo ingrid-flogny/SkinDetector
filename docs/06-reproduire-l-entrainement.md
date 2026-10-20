@@ -308,8 +308,8 @@ docker run --rm -e HF_WRITE_TOKEN -v "${PWD}:/repo" -w /repo skindetector-traini
 ```
 
 - Crée ou met à jour `ingridflogny/skindetector-derm-probe` avec `app/probe.npz` et le
-  contenu de `huggingface/model/` (fiche, `NOTICE`, conditions HAI-DEF), puis l'ouvre en
-  accès contrôlé avec validation manuelle.
+  contenu de `huggingface/model/` (fiche, `NOTICE`, conditions HAI-DEF), puis le rend
+  public, sans demande d'accès.
 - Après un nouvel export, relancer la commande publie la nouvelle version ; penser à mettre
   à jour les résultats de la fiche (`huggingface/model/README.md`).
 - Sur un poste dont le HTTPS est inspecté, le conteneur doit faire confiance au certificat

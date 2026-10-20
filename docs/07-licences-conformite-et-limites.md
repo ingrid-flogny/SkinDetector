@@ -44,14 +44,16 @@ redistribution (section 3.1) y sont remplies ainsi :
 | Joindre une **copie des conditions HAI-DEF** | `HAI-DEF-TERMS.md`, copie du texte du 15 novembre 2024 |
 | Fichier **`NOTICE`** avec la phrase imposée : *« HAI-DEF is provided under and subject to the Health AI Developer Foundations Terms of Use »* | `NOTICE`, qui précise aussi que `probe.npz` est un dérivé non approuvé par Google |
 | Signaler que les fichiers sont modifiés ou dérivés de HAI-DEF | `NOTICE` et section « Licence » de la fiche |
-| Reprendre les **restrictions d'usage** (section 3.2) comme clause opposable | section « Licence » de la fiche, et case à cocher du formulaire d'accès |
-| Usage **non commercial** (ISIC 2020) et citations | fiche du modèle, et case à cocher du formulaire d'accès |
+| Reprendre les **restrictions d'usage** (section 3.2) comme clause opposable | section « Licence » de la fiche : télécharger ou utiliser le classifieur vaut acceptation |
+| Usage **non commercial** (ISIC 2020) et citations | fiche du modèle |
 
 Choix de publication :
 
-- **Accès contrôlé, validation manuelle** : le dépôt est visible, mais télécharger
-  `probe.npz` demande de remplir un formulaire (nom, organisation, usage prévu, trois
-  engagements) et d'attendre l'accord du titulaire du compte.
+- **Public, sans demande d'accès** : tout le monde peut télécharger `probe.npz`. Les
+  conditions HAI-DEF n'imposent pas de formulaire ; en contrepartie, aucun engagement
+  explicite n'est recueilli et l'on ne sait pas qui télécharge le classifieur ni pour
+  quel usage. Un accès contrôlé (`gated`) peut être rétabli à tout moment dans les
+  réglages du dépôt.
 - **Derm Foundation n'est pas republié** : chaque utilisateur du classifieur doit obtenir
   son propre accès, et utiliser la révision figée indiquée dans la fiche.
 - **Format `npz`** : uniquement des nombres, aucun code exécuté au chargement, contrairement

@@ -20,7 +20,7 @@ données publics, **PAD-UFES-20** (smartphone) et **ISIC 2020** (dermatoscope).
 | Entrée | une photo (JPEG, PNG…) + le type d'appareil : `smartphone` ou `dermatoscope` |
 | Sortie | un score de 0 à 1 et le seuil d'alerte propre au type de photo |
 | Modèle | Derm Foundation (`google/derm-foundation`, révision figée) + régression logistique |
-| Classifieur publié | [`ingridflogny/skindetector-derm-probe`](https://huggingface.co/ingridflogny/skindetector-derm-probe) sur Hugging Face, en accès contrôlé |
+| Classifieur publié | [`ingridflogny/skindetector-derm-probe`](https://huggingface.co/ingridflogny/skindetector-derm-probe) sur Hugging Face, en accès libre |
 | Performance (test) | AUC **0,86** sur ISIC 2020 (dermatoscope), **0,96** sur PAD-UFES-20 (smartphone) |
 | Ancien modèle | EfficientNet-B0 entraîné sur HAM10000, conservé en option : AUC 0,64 et 0,84 |
 | Technique | Python 3.12, FastAPI, TensorFlow (CPU), Docker, environ 2,5 Go de mémoire |

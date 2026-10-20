@@ -1,8 +1,8 @@
 """Publie le classifieur sur Hugging Face.
 
 Dépôt modèle `<compte>/skindetector-derm-probe` : app/probe.npz, sa fiche, la NOTICE et
-la copie des conditions HAI-DEF (contenu de huggingface/model/). Public mais à accès
-contrôlé : chaque demande d'accès est validée à la main.
+la copie des conditions HAI-DEF (contenu de huggingface/model/). Public, sans demande
+d'accès : les conditions d'utilisation sont dans la fiche, la NOTICE et la copie jointe.
 
 Jeton lu dans l'environnement : HF_WRITE_TOKEN (écriture, pour créer et remplir le
 dépôt). Relançable : un dépôt existant est mis à jour.
@@ -28,8 +28,8 @@ def main() -> None:
     api = HfApi(token=os.environ["HF_WRITE_TOKEN"])
     model_repo = f"{api.whoami()['name']}/{MODEL_NAME}"
 
-    # Créé privé, rempli, puis ouvert avec le contrôle d'accès : jamais visible sans
-    # ses conditions.
+    # Créé privé, rempli, puis rendu public : jamais visible sans sa fiche et ses
+    # conditions.
     api.create_repo(model_repo, private=True, exist_ok=True)
     api.create_commit(
         model_repo,
@@ -39,7 +39,7 @@ def main() -> None:
         ],
         commit_message="Publie le classifieur SkinDetector",
     )
-    api.update_repo_settings(model_repo, gated="manual", private=False)
+    api.update_repo_settings(model_repo, gated=False, private=False)
     print(f"Modèle : https://huggingface.co/{model_repo}")
 
 

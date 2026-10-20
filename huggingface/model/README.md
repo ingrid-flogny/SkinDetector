@@ -14,20 +14,6 @@ tags:
   - medical
   - derm-foundation
   - hai-def
-extra_gated_heading: Accès au classifieur SkinDetector
-extra_gated_prompt: >-
-  Ce classifieur est un dérivé de Derm Foundation (Google, HAI-DEF). Pour y accéder,
-  vous acceptez les Health AI Developer Foundations Terms of Use, y compris leurs
-  restrictions d'usage (section 3.2), et un usage non commercial (données ISIC 2020
-  sous CC BY-NC 4.0). Ce n'est pas un dispositif médical.
-extra_gated_fields:
-  Nom: text
-  Organisation: text
-  Usage prévu: text
-  J'accepte les Health AI Developer Foundations Terms of Use et leurs restrictions d'usage: checkbox
-  Je n'utiliserai pas ce modèle à des fins commerciales: checkbox
-  Je n'utiliserai pas ce modèle pour diagnostiquer ou traiter des patients sans autorisation de l'autorité de santé compétente: checkbox
-extra_gated_button_content: Demander l'accès
 ---
 
 # SkinDetector : classifieur de malignité sur Derm Foundation
@@ -151,9 +137,9 @@ HAI-DEF is provided under and subject to the Health AI Developer Foundations Ter
 found at https://developers.google.com/health-ai-developer-foundations/terms. Une copie
 de ces conditions est jointe ([`HAI-DEF-TERMS.md`](HAI-DEF-TERMS.md)).
 
-En utilisant ce classifieur, vous vous engagez à respecter les **restrictions d'usage de la
-section 3.2** de ces conditions, qui s'appliquent comme une clause du présent contrat :
-ne pas l'utiliser
+En téléchargeant ou en utilisant ce classifieur, vous acceptez ces conditions et vous
+vous engagez à respecter leurs **restrictions d'usage (section 3.2)**, qui s'appliquent
+comme une clause des présentes conditions d'utilisation : ne pas l'utiliser
 
 - pour les usages restreints décrits dans la *Health AI Developer Foundations Prohibited
   Use Policy* (https://developers.google.com/health-ai-developer-foundations/prohibited-use-policy) ;
