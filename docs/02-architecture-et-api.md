@@ -108,7 +108,7 @@ Une page unique, sans framework ni dépendance externe :
 
 Le type de photo est demandé parce que les deux sources n'ont pas du tout la même
 distribution de scores : le seuil adapté au smartphone (0,896) est plus de dix fois plus
-élevé que celui du dermatoscope (0,079). Voir [Méthodologie](04-methodologie-scientifique.md#8-seuils-dalerte-par-type-de-photo).
+élevé que celui du dermatoscope (0,079). Voir [Méthodologie](04-methodologie-scientifique.md#8-seuils-dalerte-par-type-de-photo-trainingexport_probepy).
 
 ## 4. Données de santé
 
