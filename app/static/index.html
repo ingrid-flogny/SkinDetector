@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SkinDetector</title>
+  <style>
+    :root { --ink: #1c2733; --muted: #5d6b7a; --line: #d5dce4; --bg: #f4f6f8; --accent: #0b6e6e; --danger: #b3261e; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font: 16px/1.5 system-ui, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+    main { max-width: 860px; margin: 0 auto; padding: 24px 16px 48px; }
+    h1 { font-size: 1.5rem; margin: 0 0 4px; }
+    .lead { color: var(--muted); margin: 0 0 24px; }
+    section { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 20px; margin-bottom: 16px; }
+    h2 { font-size: 1.05rem; margin: 0 0 12px; }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+    button { font: inherit; padding: 9px 16px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: #fff; cursor: pointer; }
+    button:disabled { opacity: .45; cursor: not-allowed; }
+    .status { color: var(--muted); min-height: 1.5em; margin: 10px 0 0; }
+    .status.error { color: var(--danger); }
+    .note { color: var(--muted); font-size: .875rem; margin: 10px 0 0; }
+    [hidden] { display: none !important; }
+    .dropzone { display: block; border: 2px dashed var(--line); border-radius: 10px; padding: 28px 16px; text-align: center; color: var(--muted); cursor: pointer; }
+    .dropzone.over { border-color: var(--accent); background: #eef6f6; }
+    .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+    #preview { display: block; max-width: 100%; max-height: 320px; margin: 14px auto 0; border-radius: 8px; }
+    .score { font-size: 2.5rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+    .score-label { color: var(--muted); margin: 0 0 14px; }
+    table { width: 100%; border-collapse: collapse; }
+    td { padding: 6px 0; border-top: 1px solid var(--line); vertical-align: middle; }
+    td.pct { width: 4.5em; text-align: right; font-variant-numeric: tabular-nums; }
+    td.bar { width: 35%; padding-left: 12px; }
+    .bar span { display: block; height: 8px; border-radius: 4px; background: var(--muted); min-width: 2px; }
+    .bar span.malignant { background: var(--danger); }
+    fieldset.source { border: 0; padding: 0; margin: 0 0 14px; display: flex; gap: 18px; flex-wrap: wrap; }
+    fieldset.source legend { padding: 0; margin-bottom: 6px; font-weight: 600; }
+    .alert { padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); margin: 0 0 14px; }
+    .alert.above { border-color: var(--danger); color: var(--danger); }
+    .tag { font-size: .75rem; color: var(--danger); border: 1px solid var(--danger); border-radius: 4px; padding: 0 5px; margin-left: 6px; white-space: nowrap; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>SkinDetector</h1>
+  <p class="lead">Déposez la photo d'une lésion cutanée pour obtenir un score de malignité.</p>
+
+  <section>
+    <h2>1. Photo</h2>
+    <fieldset class="source">
+      <legend>Type de photo</legend>
+      <label><input type="radio" name="source" value="smartphone" checked> Smartphone</label>
+      <label><input type="radio" name="source" value="dermatoscope"> Dermatoscope</label>
+    </fieldset>
+    <label class="dropzone" id="dropzone">
+      <input type="file" id="photo" accept="image/*">
+      <span id="dropLabel">Déposez une photo ici, ou cliquez pour en choisir une.</span>
+      <img id="preview" alt="Aperçu de la photo déposée" hidden>
+    </label>
+    <div class="row" style="margin-top:12px">
+      <button id="analyze" disabled>Analyser</button>
+    </div>
+    <p class="status" id="analyzeStatus" role="status"></p>
+    <p class="note">Le type de photo règle le seuil d'alerte : les deux sources ne donnent pas les mêmes scores.</p>
+  </section>
+
+  <section id="result" hidden>
+    <h2>2. Résultat</h2>
+    <div class="score" id="score"></div>
+    <p class="score-label">Score de malignité, de 0 à 100 %. Ce n'est pas une probabilité : il se lit par rapport au seuil d'alerte.</p>
+    <p class="alert" id="alert" hidden></p>
+    <table><tbody id="classes"></tbody></table>
+    <p class="note" id="modelName"></p>
+    <p class="note">Estimation produite par un modèle expérimental, non validé cliniquement et qui n'est pas un dispositif médical. Elle ne constitue pas un diagnostic : un score bas n'exclut pas une lésion maligne.</p>
+  </section>
+</main>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  function setStatus(el, text, isError = false) {
+    el.textContent = text;
+    el.classList.toggle("error", isError);
+  }
+
+  async function postJson(url, options) {
+    const response = await fetch(url, options);
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.detail || `Erreur ${response.status}`);
+    return body;
+  }
+
+  const dropzone = $("dropzone"), photo = $("photo"), preview = $("preview"), analyze = $("analyze");
+  const percent = (p) => `${(p * 100).toFixed(1).replace(".", ",")} %`;
+  let photoFile = null;
+
+  function setPhoto(file) {
+    if (!file || !file.type.startsWith("image/")) {
+      setStatus($("analyzeStatus"), "Ce fichier n'est pas une image.", true);
+      return;
+    }
+    photoFile = file;
+    if (preview.src) URL.revokeObjectURL(preview.src);
+    preview.src = URL.createObjectURL(file);
+    preview.hidden = false;
+    $("dropLabel").textContent = file.name;
+    $("result").hidden = true;
+    analyze.disabled = false;
+    setStatus($("analyzeStatus"), "");
+  }
+
+  photo.addEventListener("change", () => setPhoto(photo.files[0]));
+  dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("over"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("over"));
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("over");
+    setPhoto(e.dataTransfer.files[0]);
+  });
+
+  analyze.addEventListener("click", async () => {
+    analyze.disabled = true;
+    setStatus($("analyzeStatus"), "Analyse en cours…");
+    const form = new FormData();
+    form.append("image", photoFile);
+    form.append("source", document.querySelector('input[name="source"]:checked').value);
+    try {
+      const result = await postJson("/api/analyses", { method: "POST", body: form });
+      $("score").textContent = percent(result.malignancy_score);
+      const alert = $("alert");
+      alert.hidden = result.alert_threshold == null;
+      if (!alert.hidden) {
+        const above = result.malignancy_score >= result.alert_threshold;
+        alert.className = above ? "alert above" : "alert";
+        alert.textContent = (above
+          ? "Au-dessus du seuil d'alerte"
+          : "En dessous du seuil d'alerte")
+          + ` (${percent(result.alert_threshold)}). Ce seuil détectait 95 % des lésions malignes en validation, au prix de fausses alertes.`;
+      }
+      const rows = result.classes.map((c) => {
+        const row = document.createElement("tr");
+        const name = row.insertCell();
+        name.textContent = c.label;
+        if (c.malignant) {
+          const tag = document.createElement("span");
+          tag.className = "tag";
+          tag.textContent = "malin";
+          name.append(tag);
+        }
+        const pct = row.insertCell();
+        pct.className = "pct";
+        pct.textContent = percent(c.probability);
+        const bar = row.insertCell();
+        bar.className = "bar";
+        const fill = document.createElement("span");
+        fill.style.width = `${c.probability * 100}%`;
+        if (c.malignant) fill.className = "malignant";
+        bar.append(fill);
+        return row;
+      });
+      $("classes").replaceChildren(...rows);
+      $("modelName").textContent = `Modèle : ${result.model}`;
+      $("result").hidden = false;
+      setStatus($("analyzeStatus"), "Analyse terminée.");
+    } catch (e) {
+      setStatus($("analyzeStatus"), e.message, true);
+    } finally {
+      analyze.disabled = false;
+    }
+  });
+</script>
+</body>
+</html>

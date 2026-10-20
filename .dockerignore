@@ -1,0 +1,7 @@
+.venv/
+.idea/
+.git/
+.env
+.certs/
+training/
+__pycache__/

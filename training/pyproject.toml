@@ -1,0 +1,15 @@
+# Projet séparé de l'application : ses dépendances (TensorFlow, outils d'évaluation)
+# ne doivent jamais entrer dans l'image Docker déployée.
+# Utilisation : uv run --project training python training/<script>.py
+[project]
+name = "skindetector-training"
+version = "0.1.0"
+description = "Entraînement et évaluation des modèles de détection de lésions cutanées"
+requires-python = ">=3.12"
+dependencies = [
+    "huggingface-hub",
+    "numpy",
+    "pillow",
+    "scikit-learn",
+    "tensorflow",
+]

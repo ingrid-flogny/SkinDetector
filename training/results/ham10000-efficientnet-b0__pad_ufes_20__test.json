@@ -1,0 +1,17 @@
+{
+  "model": "ham10000-efficientnet-b0",
+  "dataset": "pad_ufes_20",
+  "split": "test",
+  "images": 453,
+  "malignant": 367,
+  "melanoma": 7,
+  "auc": 0.843,
+  "auc_ci95": [
+    0.801,
+    0.882
+  ],
+  "threshold_at_95_sensitivity": 0.0327,
+  "specificity_at_95_sensitivity": 0.36,
+  "melanoma_sensitivity_at_that_threshold": 0.571,
+  "melanoma_sensitivity_at_0.5": 0.143
+}

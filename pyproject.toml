@@ -1,0 +1,32 @@
+[project]
+name = "skindetector"
+version = "0.1.0"
+description = "Score de malignité d'une lésion cutanée à partir d'une photo"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi",
+    "huggingface-hub",
+    "numpy",
+    "pillow",
+    "python-multipart",
+    "tensorflow",
+    "uvicorn[standard]",
+]
+
+[project.optional-dependencies]
+# Ancien modèle (app/ham10000.py), absent de l'image par défaut.
+ham10000 = [
+    "timm",
+    "torch",
+    "torchvision",
+]
+
+# PyTorch en version CPU : le cluster n'a pas de GPU.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }

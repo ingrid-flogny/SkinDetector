@@ -1,0 +1,18 @@
+{
+  "model": "ham10000-efficientnet-b0",
+  "dataset": "isic2020",
+  "split": "test",
+  "images": 6162,
+  "malignant": 106,
+  "melanoma": 106,
+  "auc": 0.635,
+  "auc_ci95": [
+    0.575,
+    0.694
+  ],
+  "threshold_at_95_sensitivity": 0.0,
+  "specificity_at_95_sensitivity": 0.084,
+  "melanoma_vs_benign_auc": 0.635,
+  "melanoma_sensitivity_at_that_threshold": 0.953,
+  "melanoma_sensitivity_at_0.5": 0.245
+}

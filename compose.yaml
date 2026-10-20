@@ -1,0 +1,17 @@
+# Lancement local : docker compose up --build, puis http://localhost:8081
+# Au premier démarrage, Derm Foundation (environ 1 Go) est téléchargé avec HF_TOKEN
+# (lu dans .env) ; le volume le conserve pour les démarrages suivants.
+services:
+  app:
+    build: .
+    image: skindetector:dev
+    environment:
+      HF_TOKEN: ${HF_TOKEN}
+    volumes:
+      - hf-cache:/opt/hf
+    ports:
+      # 8081 : MedicalAssistant occupe déjà le port 8080 sur ce poste.
+      - "8081:8080"
+
+volumes:
+  hf-cache:

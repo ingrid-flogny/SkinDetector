@@ -1,0 +1,20 @@
+{
+  "model": "derm-foundation-logreg",
+  "dataset": "pad_ufes_20",
+  "split": "cv5",
+  "folds": 5,
+  "C": 0.1,
+  "images": 2298,
+  "malignant": 1819,
+  "melanoma": 52,
+  "auc": 0.982,
+  "auc_ci95": [
+    0.975,
+    0.988
+  ],
+  "threshold_at_95_sensitivity": 0.8432,
+  "specificity_at_95_sensitivity": 0.933,
+  "melanoma_vs_benign_auc": 0.885,
+  "melanoma_sensitivity_at_that_threshold": 0.519,
+  "melanoma_sensitivity_at_0.5": 0.596
+}
