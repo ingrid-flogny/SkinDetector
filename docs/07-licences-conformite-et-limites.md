@@ -62,17 +62,32 @@ Choix de publication :
 Le contenu du dépôt est versionné dans `huggingface/model/` ; la commande de publication
 est dans [Reproduire l'entraînement](06-reproduire-l-entrainement.md#10-publier-le-classifieur-sur-hugging-face).
 
-L'**application** n'est pas hébergée sur Hugging Face : les Spaces Docker demandent un
-abonnement payant. Elle continue de tourner en local avec Docker Compose et lit sa propre
-copie de `app/probe.npz`.
+### L'application en ligne
+
+L'application est aussi publiée, en accès libre, sur le Space Gradio
+**https://huggingface.co/spaces/ingridflogny/SkinDetector**. Son code, dont `probe.npz`,
+y est public : le Space contient donc lui aussi la `NOTICE` et la copie des conditions
+HAI-DEF, et sa fiche reprend les restrictions d'usage et la clause non commerciale.
+L'avertissement « pas un dispositif médical » est affiché en tête de l'interface.
+
+Hébergement gratuit : les Spaces Gradio et Docker demandent désormais un abonnement
+payant à la création. Le Space réutilise un Space Gradio créé avant ce changement, sur le
+matériel CPU Basic gratuit. Rien ne garantit que Hugging Face maintienne cette gratuité.
 
 ## 3. Données de santé et réglementation
 
 ### Ce que fait l'application
 
-Aucune photo n'est enregistrée, journalisée ni envoyée à un tiers (voir
+En local, aucune photo n'est enregistrée, journalisée ni envoyée à un tiers (voir
 [Architecture](02-architecture-et-api.md#4-données-de-santé)). Le développement n'a
 utilisé que des **jeux publics anonymisés**.
+
+Sur le **Space Hugging Face**, c'est différent : les photos sont envoyées aux serveurs de
+Hugging Face, un hébergeur tiers situé hors de l'Union européenne et non certifié HDS.
+Gradio en garde une copie temporaire, effacée après 5 minutes ; l'application ne les
+journalise pas. Le Space ne convient donc qu'à des photos de démonstration, jamais à des
+photos de patients : l'interface demande de ne pas envoyer de photo permettant
+d'identifier une personne.
 
 ### Avant tout usage avec de vrais patients
 

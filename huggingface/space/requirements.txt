@@ -1,0 +1,7 @@
+# Mêmes versions que l'application (uv.lock), sauf Pillow (Gradio 6.30 demande
+# pillow < 13) et pydantic, laissé libre : gradio[mcp], installé par le Space, impose
+# pydantic <= 2.12.5. Gradio lui-même est installé par le Space (sdk_version du README).
+huggingface-hub==2.2.0
+numpy==2.5.4
+pillow==12.3.0
+tensorflow==2.21.0

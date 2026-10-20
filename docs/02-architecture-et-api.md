@@ -121,6 +121,10 @@ Une photo de lésion est une donnée de santé. L'application :
 
 Seul Derm Foundation est téléchargé depuis Hugging Face, une fois, au premier démarrage.
 
+Ces garanties valent pour l'application FastAPI. La version en ligne sur un Space Hugging
+Face traite les photos sur les serveurs de Hugging Face, et Gradio en garde une copie
+temporaire (voir [Licences](07-licences-conformite-et-limites.md#ce-que-fait-lapplication)).
+
 ## 5. Configuration
 
 | Variable | Défaut | Rôle |

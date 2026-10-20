@@ -317,6 +317,25 @@ docker run --rm -e HF_WRITE_TOKEN -v "${PWD}:/repo" -w /repo skindetector-traini
   `compose.override.yaml` (voir [Prérequis](01-prerequis-et-installation.md#3-installation-de-lapplication)).
 - Le jeton en écriture peut être révoqué une fois la publication faite.
 
+## 11. Déployer l'application sur le Space Hugging Face
+
+```powershell
+$env:HF_WRITE_TOKEN = (Get-Content .env | Select-String '^HF_WRITE_TOKEN=').Line.Split('=', 2)[1]
+$env:HF_TOKEN = (Get-Content .env | Select-String '^HF_TOKEN=').Line.Split('=', 2)[1]
+docker run --rm -e HF_WRITE_TOKEN -e HF_TOKEN -v "${PWD}:/repo" -w /repo skindetector-training python huggingface/publish_space.py
+```
+
+- Envoie sur `ingridflogny/SkinDetector` l'interface Gradio (`huggingface/space/`), le
+  modèle de l'application (`app/skin.py`, `app/derm_foundation.py`, `app/probe.npz`), la
+  `NOTICE` et les conditions HAI-DEF, puis enregistre `HF_TOKEN` comme secret du Space.
+- Le Space se reconstruit et redémarre à chaque déploiement : environ 2 minutes.
+- Le Space installe ses dépendances avec pip, à partir de `huggingface/space/requirements.txt`
+  et de la version de Gradio indiquée dans sa fiche (`sdk_version`). Elles reprennent les
+  versions de `uv.lock`, sauf Pillow (12.3 : Gradio demande une version inférieure à 13)
+  et pydantic (laissé libre : l'option `mcp` de Gradio impose au plus 2.12.5). Avec
+  Pillow 12.3, les scores des images de contrôle restent identiques.
+- Mêmes précautions de certificat que pour la publication du classifieur.
+
 ## Fichiers produits
 
 | Fichier | Versionné | Contenu |
