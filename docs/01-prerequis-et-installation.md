@@ -31,7 +31,7 @@ Le jeton n'est utilisé qu'au premier démarrage, pour télécharger Derm Founda
 Seul le calcul des embeddings d'ISIC 2020 (33 126 images) a demandé un GPU. Il faut :
 un projet Google Cloud personnel avec facturation, une alerte de budget, et un quota
 « GPUs (all regions) » d'au moins 1. La marche à suivre et les coûts réels sont dans
-[Reproduire l'entraînement](06-reproduire-l-entrainement.md#5-embeddings-disque-sur-gpu-google-cloud).
+[Reproduire l'entraînement](06-reproduire-l-entrainement.md#isic-2020-sur-gpu-dans-google-cloud).
 
 ### GitHub (facultatif)
 
@@ -87,8 +87,27 @@ docker compose up --build
 - L'application répond sur **http://localhost:8081**. Le port 8081 a été choisi parce
   que MedicalAssistant occupe déjà le 8080 sur le poste de développement.
 
-Sur un poste dont le HTTPS est inspecté, créer `compose.override.yaml` (modèle dans le
-dépôt de développement) et placer le certificat racine dans `.certs/local-ca.pem`.
+Sur un poste dont le HTTPS est inspecté, placer le certificat racine dans
+`.certs/local-ca.pem` et créer `compose.override.yaml` (non versionné, fusionné
+automatiquement par Docker Compose) :
+
+```yaml
+services:
+  app:
+    build:
+      secrets:
+        - extra_ca
+    volumes:
+      - ./.certs/local-ca.pem:/local-ca.pem:ro
+    command: >
+      sh -c "cat /etc/ssl/certs/ca-certificates.crt /local-ca.pem > /tmp/ca.pem
+      && SSL_CERT_FILE=/tmp/ca.pem REQUESTS_CA_BUNDLE=/tmp/ca.pem
+      exec uvicorn app.main:app --host 0.0.0.0 --port 8080"
+
+secrets:
+  extra_ca:
+    file: ./.certs/local-ca.pem
+```
 
 Arrêter : `docker compose down`. Le volume `hf-cache` est conservé ; pour le supprimer
 aussi : `docker compose down -v`.
