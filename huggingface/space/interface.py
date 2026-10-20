@@ -73,9 +73,11 @@ with gr.Blocks(title="SkinDetector", delete_cache=DELETE_CACHE) as demo:
             )
             # Éditeur réduit au recadrage. Le canevas prend la taille de la photo (pas de
             # réduction), et le PNG évite la compression avec perte du WebP par défaut.
+            # Mode RGB : en RGBA (défaut), Gradio ne peut pas réenregistrer une photo JPEG.
             photo = gr.ImageEditor(
                 type="filepath",
                 format="png",
+                image_mode="RGB",
                 label="Photo",
                 sources=["upload", "webcam"],
                 transforms=("crop",),
