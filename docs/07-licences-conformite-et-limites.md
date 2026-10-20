@@ -134,7 +134,10 @@ d'identifier une personne.
   adaptateur dermoscopique est un cas non étudié.
 - **Une photo, une lésion** : pas de comparaison avec les autres lésions du patient, pas
   de suivi dans le temps, pas d'informations cliniques (âge, antécédents, évolution).
-- **Qualité d'image** : aucun contrôle de netteté, d'exposition ou de cadrage ; Google
+- **Cadrage** : le modèle a été entraîné sur des gros plans d'une seule lésion. Sur une
+  photo large, l'utilisateur doit encadrer la lésion ; rien ne l'y oblige, et la
+  résolution minimale d'un cadre pour un score fiable n'a pas été mesurée.
+- **Qualité d'image** : aucun contrôle automatique de netteté, d'exposition ou de cadrage ; Google
   signale une baisse de qualité sur les images extrêmes.
 
 ### Évaluation

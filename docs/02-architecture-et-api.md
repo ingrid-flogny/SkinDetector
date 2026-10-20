@@ -54,6 +54,14 @@ Analyse une photo. Requête `multipart/form-data` :
 |---|---|---|---|
 | `image` | fichier | oui | photo de la lésion, dans un format lisible par Pillow (JPEG, PNG, WebP, HEIF selon l'installation…) |
 | `source` | texte | oui | `smartphone` ou `dermatoscope` : type d'appareil, qui détermine le seuil d'alerte |
+| `crop_x`, `crop_y` | entier ≥ 0 | non | coin supérieur gauche du cadre à analyser, en pixels de la photo redressée (orientation EXIF appliquée) |
+| `crop_width`, `crop_height` | entier > 0 | non | taille du cadre, en pixels |
+
+Les quatre champs du cadre vont ensemble : tous ou aucun. Sans cadre, toute la photo est
+analysée. Avec un cadre, la zone est découpée **dans la photo d'origine, en pleine
+résolution**, puis analysée comme une photo entière (redimensionnée en 448 × 448). Le
+modèle ayant été entraîné sur des gros plans, le cadre sert à isoler une lésion sur une
+photo plus large.
 
 Réponse `200`, objet `SkinAnalysis` :
 
@@ -77,13 +85,16 @@ Erreurs :
 
 | Code | Cause |
 |---|---|
-| `422` | image illisible, champ manquant, ou `source` différent de `smartphone` / `dermatoscope` |
+| `422` | image illisible, champ manquant, `source` différent de `smartphone` / `dermatoscope`, cadre incomplet, de taille nulle ou qui dépasse de la photo |
 | `500` | erreur du modèle (ne devrait pas arriver avec une image valide) |
 
 Exemple :
 
 ```bash
 curl -F "image=@lesion.jpg" -F "source=dermatoscope" http://localhost:8081/api/analyses
+# Seulement un cadre de 300 × 300 pixels à partir du point (1200, 800)
+curl -F "image=@main.jpg" -F "source=smartphone" -F crop_x=1200 -F crop_y=800 \
+     -F crop_width=300 -F crop_height=300 http://localhost:8081/api/analyses
 ```
 
 ### `GET /healthz`
@@ -101,10 +112,19 @@ Une page unique, sans framework ni dépendance externe :
 
 1. choix du type de photo (**Smartphone** par défaut, ou **Dermatoscope**) ;
 2. dépôt de la photo par glisser-déposer ou sélection, avec aperçu ;
-3. bouton « Analyser » ;
-4. résultat : score en pourcentage, message « au-dessus / en dessous du seuil d'alerte »
-   avec la valeur du seuil, détail par classe (ancien modèle uniquement), nom du modèle
-   et rappel que l'outil n'est pas un dispositif médical.
+3. recadrage facultatif : un cadre tracé à la souris ou au doigt sur l'aperçu, pour isoler
+   une lésion sur une photo large. Le navigateur n'envoie que ses coordonnées, en pixels
+   de la photo d'origine ; le découpage est fait par le serveur, sans perte de résolution.
+   Un clic simple ou le bouton « Effacer le cadre » revient à la photo entière ;
+4. bouton « Analyser » ;
+5. résultat : score en pourcentage, message « au-dessus / en dessous du seuil d'alerte »
+   avec la valeur du seuil, zone analysée (cadre ou photo entière), détail par classe
+   (ancien modèle uniquement), nom du modèle et rappel que l'outil n'est pas un
+   dispositif médical.
+
+Sur le Space Hugging Face, le recadrage passe par l'éditeur d'image de Gradio, réduit à
+son outil de recadrage. Le canevas prend la taille de la photo (pas de réduction) et
+l'image recadrée est transmise en PNG, sans perte.
 
 Le type de photo est demandé parce que les deux sources n'ont pas du tout la même
 distribution de scores : le seuil adapté au smartphone (0,896) est plus de dix fois plus

@@ -31,7 +31,9 @@ def percent(p: float) -> str:
     return f"{p * 100:.1f} %".replace(".", ",")
 
 
-def analyze(path: str | None, source: str) -> str:
+def analyze(edited: dict | None, source: str) -> str:
+    # Image après recadrage éventuel ; toute la photo si l'utilisateur n'a pas recadré.
+    path = (edited or {}).get("composite")
     if path is None:
         raise gr.Error("Déposez d'abord une photo.")
     try:
@@ -69,7 +71,24 @@ with gr.Blocks(title="SkinDetector", delete_cache=DELETE_CACHE) as demo:
                 info="Le type de photo règle le seuil d'alerte : les deux sources ne donnent "
                 "pas les mêmes scores.",
             )
-            photo = gr.Image(type="filepath", label="Photo", sources=["upload", "webcam"])
+            # Éditeur réduit au recadrage. Le canevas prend la taille de la photo (pas de
+            # réduction), et le PNG évite la compression avec perte du WebP par défaut.
+            photo = gr.ImageEditor(
+                type="filepath",
+                format="png",
+                label="Photo",
+                sources=["upload", "webcam"],
+                transforms=("crop",),
+                brush=False,
+                eraser=False,
+                layers=False,
+            )
+            gr.Markdown(
+                "Recadrez sur la lésion à analyser (outil de recadrage de l'éditeur), en "
+                "laissant un peu de peau autour. Le modèle a été entraîné sur des gros plans : "
+                "sur une photo large (une main entière, plusieurs grains de beauté), gardez une "
+                "seule lésion. Sans recadrage, toute la photo est analysée."
+            )
             button = gr.Button("Analyser", variant="primary")
         with gr.Column():
             output = gr.Markdown()

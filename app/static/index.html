@@ -23,7 +23,10 @@
     .dropzone { display: block; border: 2px dashed var(--line); border-radius: 10px; padding: 28px 16px; text-align: center; color: var(--muted); cursor: pointer; }
     .dropzone.over { border-color: var(--accent); background: #eef6f6; }
     .dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
-    #preview { display: block; max-width: 100%; max-height: 320px; margin: 14px auto 0; border-radius: 8px; }
+    .cropper { position: relative; width: fit-content; max-width: 100%; margin: 14px auto 0; border-radius: 8px; overflow: hidden; cursor: crosshair; touch-action: none; user-select: none; }
+    #preview { display: block; max-width: 100%; max-height: 420px; pointer-events: none; }
+    .selection { position: absolute; border: 2px solid #fff; outline: 1px solid var(--accent); box-shadow: 0 0 0 9999px rgba(0, 0, 0, .45); pointer-events: none; }
+    button.secondary { background: #fff; color: var(--accent); }
     .score { font-size: 2.5rem; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
     .score-label { color: var(--muted); margin: 0 0 14px; }
     table { width: 100%; border-collapse: collapse; }
@@ -54,10 +57,17 @@
     <label class="dropzone" id="dropzone">
       <input type="file" id="photo" accept="image/*">
       <span id="dropLabel">Déposez une photo ici, ou cliquez pour en choisir une.</span>
-      <img id="preview" alt="Aperçu de la photo déposée" hidden>
     </label>
+    <div id="cropArea" hidden>
+      <div class="cropper" id="cropper">
+        <img id="preview" alt="Photo déposée : faites glisser pour encadrer la lésion">
+        <div class="selection" id="selection" hidden></div>
+      </div>
+      <p class="note">Encadrez la lésion à analyser en faisant glisser sur la photo, en laissant un peu de peau autour. Le modèle a été entraîné sur des gros plans : sur une photo large (une main entière, plusieurs grains de beauté), encadrez une seule lésion. Sans cadre, toute la photo est analysée.</p>
+    </div>
     <div class="row" style="margin-top:12px">
       <button id="analyze" disabled>Analyser</button>
+      <button id="clearCrop" class="secondary" hidden>Effacer le cadre</button>
     </div>
     <p class="status" id="analyzeStatus" role="status"></p>
     <p class="note">Le type de photo règle le seuil d'alerte : les deux sources ne donnent pas les mêmes scores.</p>
@@ -69,6 +79,7 @@
     <p class="score-label">Score de malignité, de 0 à 100 %. Ce n'est pas une probabilité : il se lit par rapport au seuil d'alerte.</p>
     <p class="alert" id="alert" hidden></p>
     <table><tbody id="classes"></tbody></table>
+    <p class="note" id="scope"></p>
     <p class="note" id="modelName"></p>
     <p class="note">Estimation produite par un modèle expérimental, non validé cliniquement et qui n'est pas un dispositif médical. Elle ne constitue pas un diagnostic : un score bas n'exclut pas une lésion maligne.</p>
   </section>
@@ -90,8 +101,12 @@
   }
 
   const dropzone = $("dropzone"), photo = $("photo"), preview = $("preview"), analyze = $("analyze");
+  const cropper = $("cropper"), selection = $("selection"), clearCrop = $("clearCrop");
   const percent = (p) => `${(p * 100).toFixed(1).replace(".", ",")} %`;
   let photoFile = null;
+  // Cadre en pixels de la photo d'origine (orientation EXIF appliquée par le navigateur,
+  // comme par le serveur) : null pour analyser toute la photo.
+  let crop = null, dragStart = null;
 
   function setPhoto(file) {
     if (!file || !file.type.startsWith("image/")) {
@@ -101,12 +116,68 @@
     photoFile = file;
     if (preview.src) URL.revokeObjectURL(preview.src);
     preview.src = URL.createObjectURL(file);
-    preview.hidden = false;
+    $("cropArea").hidden = false;
+    setCrop(null);
     $("dropLabel").textContent = file.name;
     $("result").hidden = true;
     analyze.disabled = false;
     setStatus($("analyzeStatus"), "");
   }
+
+  // Point du pointeur en pixels de la photo d'origine, borné à la photo.
+  function photoPoint(e) {
+    const box = preview.getBoundingClientRect();
+    const scale = preview.naturalWidth / box.width;
+    const clamp = (v, max) => Math.min(Math.max(v, 0), max);
+    return {
+      x: clamp((e.clientX - box.left) * scale, preview.naturalWidth),
+      y: clamp((e.clientY - box.top) * scale, preview.naturalHeight),
+    };
+  }
+
+  function setCrop(value) {
+    crop = value;
+    clearCrop.hidden = !crop;
+    drawCrop();
+  }
+
+  function drawCrop() {
+    selection.hidden = !crop;
+    if (!crop) return;
+    const scale = preview.getBoundingClientRect().width / preview.naturalWidth;
+    Object.assign(selection.style, {
+      left: `${crop.x * scale}px`, top: `${crop.y * scale}px`,
+      width: `${crop.width * scale}px`, height: `${crop.height * scale}px`,
+    });
+  }
+
+  function cropBetween(a, b) {
+    const x = Math.round(Math.min(a.x, b.x)), y = Math.round(Math.min(a.y, b.y));
+    return {
+      x, y,
+      width: Math.min(Math.round(Math.abs(b.x - a.x)), preview.naturalWidth - x),
+      height: Math.min(Math.round(Math.abs(b.y - a.y)), preview.naturalHeight - y),
+    };
+  }
+
+  cropper.addEventListener("pointerdown", (e) => {
+    cropper.setPointerCapture(e.pointerId);
+    dragStart = photoPoint(e);
+  });
+  cropper.addEventListener("pointermove", (e) => {
+    if (dragStart) setCrop(cropBetween(dragStart, photoPoint(e)));
+  });
+  cropper.addEventListener("pointerup", (e) => {
+    if (!dragStart) return;
+    const box = cropBetween(dragStart, photoPoint(e));
+    dragStart = null;
+    // Un simple clic, ou un cadre minuscule à l'écran, efface le cadre.
+    const scale = preview.getBoundingClientRect().width / preview.naturalWidth;
+    setCrop(box.width * scale < 10 || box.height * scale < 10 ? null : box);
+  });
+  cropper.addEventListener("pointercancel", () => { dragStart = null; });
+  clearCrop.addEventListener("click", () => setCrop(null));
+  window.addEventListener("resize", drawCrop);
 
   photo.addEventListener("change", () => setPhoto(photo.files[0]));
   dropzone.addEventListener("dragover", (e) => { e.preventDefault(); dropzone.classList.add("over"); });
@@ -123,6 +194,15 @@
     const form = new FormData();
     form.append("image", photoFile);
     form.append("source", document.querySelector('input[name="source"]:checked').value);
+    if (crop) {
+      form.append("crop_x", crop.x);
+      form.append("crop_y", crop.y);
+      form.append("crop_width", crop.width);
+      form.append("crop_height", crop.height);
+    }
+    const scope = crop
+      ? `Zone analysée : le cadre de ${crop.width} × ${crop.height} pixels.`
+      : "Zone analysée : la photo entière.";
     try {
       const result = await postJson("/api/analyses", { method: "POST", body: form });
       $("score").textContent = percent(result.malignancy_score);
@@ -158,6 +238,7 @@
         return row;
       });
       $("classes").replaceChildren(...rows);
+      $("scope").textContent = scope;
       $("modelName").textContent = `Modèle : ${result.model}`;
       $("result").hidden = false;
       setStatus($("analyzeStatus"), "Analyse terminée.");
