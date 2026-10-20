@@ -35,23 +35,34 @@ chaque déploiement, avec un jeton dont le titulaire a accepté les conditions.
 
 ## 2. Publier le classifieur
 
-Publier `app/probe.npz` sur Hugging Face (compte `ingridflogny`) est possible à ces
-conditions :
+`app/probe.npz` est publié sur Hugging Face :
+**https://huggingface.co/ingridflogny/skindetector-derm-probe**. Les conditions HAI-DEF de
+redistribution (section 3.1) y sont remplies ainsi :
 
-1. joindre une **copie des conditions HAI-DEF** ;
-2. ajouter un fichier **`NOTICE`** contenant la phrase imposée :
-   *« HAI-DEF is provided under and subject to the Health AI Developer Foundations Terms
-   of Use »* ;
-3. signaler que les fichiers sont modifiés ou dérivés de HAI-DEF ;
-4. reprendre les **restrictions d'usage** de Google comme clause opposable ;
-5. à cause d'ISIC 2020, publier pour un **usage non commercial**, et citer ISIC et
-   PAD-UFES-20.
+| Condition | Comment elle est remplie |
+|---|---|
+| Joindre une **copie des conditions HAI-DEF** | `HAI-DEF-TERMS.md`, copie du texte du 15 novembre 2024 |
+| Fichier **`NOTICE`** avec la phrase imposée : *« HAI-DEF is provided under and subject to the Health AI Developer Foundations Terms of Use »* | `NOTICE`, qui précise aussi que `probe.npz` est un dérivé non approuvé par Google |
+| Signaler que les fichiers sont modifiés ou dérivés de HAI-DEF | `NOTICE` et section « Licence » de la fiche |
+| Reprendre les **restrictions d'usage** (section 3.2) comme clause opposable | section « Licence » de la fiche, et case à cocher du formulaire d'accès |
+| Usage **non commercial** (ISIC 2020) et citations | fiche du modèle, et case à cocher du formulaire d'accès |
 
-Derm Foundation lui-même n'est pas republié : chaque utilisateur du classifieur doit
-obtenir son propre accès. Recommandations : commencer par un dépôt **privé** ou à accès
-contrôlé ; rédiger une fiche de modèle reprenant [Résultats](05-resultats.md) et les
-limites ci-dessous ; garder le format `npz`, qui ne contient que des nombres, plutôt
-qu'un `pickle`.
+Choix de publication :
+
+- **Accès contrôlé, validation manuelle** : le dépôt est visible, mais télécharger
+  `probe.npz` demande de remplir un formulaire (nom, organisation, usage prévu, trois
+  engagements) et d'attendre l'accord du titulaire du compte.
+- **Derm Foundation n'est pas republié** : chaque utilisateur du classifieur doit obtenir
+  son propre accès, et utiliser la révision figée indiquée dans la fiche.
+- **Format `npz`** : uniquement des nombres, aucun code exécuté au chargement, contrairement
+  à un `pickle`.
+
+Le contenu du dépôt est versionné dans `huggingface/model/` ; la commande de publication
+est dans [Reproduire l'entraînement](06-reproduire-l-entrainement.md#10-publier-le-classifieur-sur-hugging-face).
+
+L'**application** n'est pas hébergée sur Hugging Face : les Spaces Docker demandent un
+abonnement payant. Elle continue de tourner en local avec Docker Compose et lit sa propre
+copie de `app/probe.npz`.
 
 ## 3. Données de santé et réglementation
 

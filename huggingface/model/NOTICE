@@ -1,0 +1,5 @@
+HAI-DEF is provided under and subject to the Health AI Developer Foundations Terms of Use found at https://developers.google.com/health-ai-developer-foundations/terms
+
+The file probe.npz in this repository is a Model Derivative of HAI-DEF (Derm Foundation):
+a linear classifier trained by Ingrid Flogny on Derm Foundation embeddings. It is not a
+file distributed by Google and has not been reviewed or endorsed by Google.

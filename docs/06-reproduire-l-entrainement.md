@@ -297,6 +297,26 @@ curl.exe -F "image=@training/data/pad_ufes_20/images/ISIC_9118085.jpg" -F "sourc
 Le score doit valoir 0,9939 (voir les autres cas de contrôle dans
 [Modèles](03-modeles.md#vérification-de-bout-en-bout)).
 
+## 10. Publier le classifieur sur Hugging Face
+
+Demande un jeton Hugging Face **en écriture**, ajouté dans `.env` sous le nom
+`HF_WRITE_TOKEN` (le `HF_TOKEN` de l'application est en lecture seule).
+
+```powershell
+$env:HF_WRITE_TOKEN = (Get-Content .env | Select-String '^HF_WRITE_TOKEN=').Line.Split('=', 2)[1]
+docker run --rm -e HF_WRITE_TOKEN -v "${PWD}:/repo" -w /repo skindetector-training python huggingface/publish.py
+```
+
+- Crée ou met à jour `ingridflogny/skindetector-derm-probe` avec `app/probe.npz` et le
+  contenu de `huggingface/model/` (fiche, `NOTICE`, conditions HAI-DEF), puis l'ouvre en
+  accès contrôlé avec validation manuelle.
+- Après un nouvel export, relancer la commande publie la nouvelle version ; penser à mettre
+  à jour les résultats de la fiche (`huggingface/model/README.md`).
+- Sur un poste dont le HTTPS est inspecté, le conteneur doit faire confiance au certificat
+  local : monter `.certs/local-ca.pem` et l'ajouter au magasin du conteneur, comme dans
+  `compose.override.yaml` (voir [Prérequis](01-prerequis-et-installation.md#3-installation-de-lapplication)).
+- Le jeton en écriture peut être révoqué une fois la publication faite.
+
 ## Fichiers produits
 
 | Fichier | Versionné | Contenu |

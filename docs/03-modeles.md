@@ -155,9 +155,12 @@ cadrées d'une seule source et se généralise mal.
 
 ## 4. Publier le classifieur sur Hugging Face
 
-Le classifieur peut être publié sur le compte Hugging Face du projet (`ingridflogny`),
-mais pas Derm Foundation lui-même. Les conditions à respecter (fichier `NOTICE`, copie
-des conditions HAI-DEF, usage non commercial à cause d'ISIC 2020) sont détaillées dans
+Le classifieur est publié sur
+[`ingridflogny/skindetector-derm-probe`](https://huggingface.co/ingridflogny/skindetector-derm-probe),
+en accès contrôlé ; Derm Foundation lui-même n'est pas republié. La fiche du modèle
+explique comment l'utiliser avec la révision figée de Derm Foundation. Les conditions
+respectées (fichier `NOTICE`, copie des conditions HAI-DEF, usage non commercial à cause
+d'ISIC 2020) sont détaillées dans
 [Licences](07-licences-conformite-et-limites.md#2-publier-le-classifieur).
 
 ## Références
