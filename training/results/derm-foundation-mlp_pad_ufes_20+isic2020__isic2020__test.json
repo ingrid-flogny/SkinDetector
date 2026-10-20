@@ -1,0 +1,26 @@
+{
+  "model": "derm-foundation-mlp_pad_ufes_20+isic2020",
+  "dataset": "isic2020",
+  "split": "test",
+  "trained_on": [
+    "pad_ufes_20",
+    "isic2020"
+  ],
+  "hidden_layer_sizes": [
+    128
+  ],
+  "alpha": 0.1,
+  "images": 6162,
+  "malignant": 106,
+  "melanoma": 106,
+  "auc": 0.845,
+  "auc_ci95": [
+    0.807,
+    0.88
+  ],
+  "threshold_at_95_sensitivity": 0.0001,
+  "specificity_at_95_sensitivity": 0.426,
+  "melanoma_vs_benign_auc": 0.845,
+  "melanoma_sensitivity_at_that_threshold": 0.962,
+  "melanoma_sensitivity_at_0.5": 0.34
+}

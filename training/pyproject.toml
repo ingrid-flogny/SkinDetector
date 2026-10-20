@@ -12,4 +12,5 @@ dependencies = [
     "pillow",
     "scikit-learn",
     "tensorflow",
+    "xgboost",
 ]

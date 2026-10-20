@@ -257,6 +257,19 @@ train train_probe.py isic2020                  # variante ISIC seul
   `training/data/models/derm-foundation-logreg_<jeux>.pkl`.
 - Quelques minutes pour PAD + ISIC (7 entraînements sur 25 175 images).
 
+### Classifieurs de comparaison
+
+```powershell
+train train_probe.py pad_ufes_20 isic2020 --model xgboost   # environ 24 min
+train train_probe.py pad_ufes_20 isic2020 --model mlp       # environ 4 min 30
+```
+
+- Même déroulé : grille d'hyperparamètres sur la validation, puis évaluation du test.
+- Écrit `training/results/derm-foundation-xgboost_<jeux>__<jeu>__test.json` (ou `-mlp`)
+  et le modèle dans `training/data/models/`.
+- Ces modèles ne sont pas utilisés par l'application : `export_probe.py` n'exporte que la
+  régression logistique.
+
 ## 7. Contrôles
 
 ```powershell

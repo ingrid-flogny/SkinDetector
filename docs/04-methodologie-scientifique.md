@@ -40,7 +40,7 @@ L'approche retenue se déroule en deux temps :
 
 Avantages : peu de données suffisent, chaque expérience coûte quelques minutes, et le
 résultat mesure directement ce que les embeddings de Derm Foundation contiennent sur la
-malignité. Inconvénient : un classifieur linéaire plafonne, voir [Résultats](05-resultats.md#5-ce-que-montrent-les-résultats).
+malignité. Inconvénient : un classifieur linéaire plafonne, voir [Résultats](05-resultats.md#6-ce-que-montrent-les-résultats).
 
 Le modèle de départ (EfficientNet-B0 entraîné sur HAM10000, récupéré tel quel sur
 Hugging Face) a été mesuré avec exactement le même protocole, pour servir de **référence
@@ -246,6 +246,34 @@ au bord de la grille.
 Le modèle final est celui entraîné sur `train` avec ce `C`. La validation n'est pas
 réintégrée à l'entraînement : elle sert aussi à fixer les seuils.
 
+### Classifieurs de comparaison : XGBoost et réseau de neurones
+
+Pour vérifier qu'un classifieur plus souple ne tirerait pas davantage des embeddings,
+`train_probe.py --model xgboost|mlp` entraîne deux alternatives **dans les mêmes
+conditions** que la régression logistique : mêmes embeddings, même découpage par patient,
+même critère de choix des hyperparamètres (moyenne des AUC de validation par jeu), mêmes
+mesures sur le test (`metrics.py`).
+
+| | XGBoost | MLP (scikit-learn) |
+|---|---|---|
+| Modèle | `XGBClassifier`, arbres boostés | `MLPClassifier`, couches cachées ReLU, optimiseur Adam |
+| Normalisation | aucune (inutile pour des arbres) | `StandardScaler`, comme la LR |
+| Grille | profondeur `{3, 6}` × arbres `{300, 1000}` | couches `{(128), (256, 64)}` × `alpha` `{0,01 ; 0,1 ; 1}` |
+| Paramètres fixes | `learning_rate = 0,05`, `subsample = 0,8`, `colsample_bytree = 0,3` | arrêt précoce, 300 itérations au plus |
+| Équilibre des classes | poids par image (`compute_sample_weight("balanced")`) | idem |
+
+- **Poids par image** : ni XGBoost ni le MLP n'acceptent `class_weight`. Les poids
+  `"balanced"` donnent à chaque classe le même poids total, exactement comme
+  `class_weight="balanced"` pour la régression logistique.
+- **`colsample_bytree = 0,3`** : chaque arbre ne voit qu'un tiers des 6 144 dimensions, ce
+  qui accélère l'entraînement et limite le surapprentissage.
+- **Arrêt précoce du MLP** : scikit-learn met de côté 10 % de la partie `train`, tirés au
+  hasard **par image et non par patient**. Deux photos d'un même patient peuvent donc se
+  trouver de part et d'autre, ce qui peut retarder un peu l'arrêt. Cela n'affecte ni le
+  choix des hyperparamètres (sur `val`) ni la mesure (sur `test`).
+
+Résultats et interprétation : [Résultats](05-resultats.md#5-classifieurs-non-linéaires--xgboost-et-réseau-de-neurones).
+
 ## 8. Seuils d'alerte par type de photo (`training/export_probe.py`)
 
 Un seul seuil ne peut pas convenir aux deux types de photo : les scores de PAD-UFES-20
@@ -331,6 +359,7 @@ l'application sont identiques à ceux de l'évaluation.
 | 6 | Grille de `C` élargie (10⁻⁶ à 1) | optimum confirmé à 10⁻⁴ |
 | 7 | Derm Foundation + LR sur ISIC 2020 seul | AUC 0,86 (ISIC) : combiner les jeux ne coûte rien |
 | 8 | Export, seuils de validation, intégration | scores de l'application identiques |
+| 9 | XGBoost et MLP à la place de la LR, sur PAD-UFES-20 + ISIC 2020 | AUC 0,86 / 0,85 (ISIC) et 0,97 / 0,97 (PAD) : pas de gain, LR conservée |
 
 La partie test a été consultée à chaque expérience. Aucun hyperparamètre n'a été choisi
 sur elle (seulement sur la validation), mais le choix entre les variantes 5 et 7 a été
@@ -346,7 +375,8 @@ fait en connaissant les résultats de test : un léger biais d'optimisme est pos
 | Ancien modèle | révision Hugging Face `9429e5a4…` |
 | Découpage | empreinte SHA-256 de l'identifiant patient, sans aléa |
 | Bootstrap | graine 0 |
-| Dépendances | `uv.lock` (application) et `training/uv.lock` (TensorFlow 2.21, scikit-learn 1.9, NumPy 2.5) |
+| Dépendances | `uv.lock` (application) et `training/uv.lock` (TensorFlow 2.21, scikit-learn 1.9, XGBoost 3.4, NumPy 2.5) |
+| Classifieurs | graine 0 pour XGBoost et le MLP (`random_state=0`) |
 | Environnement | images Docker construites depuis ces fichiers |
 | Embeddings ISIC 2020 | empreinte SHA-256 `efc25f1e06d5ba88f9811c3047369dd5e8b0c71b47c551c97691c136b08f2340` |
 | Résultats | fichiers JSON versionnés dans `training/results/` |
