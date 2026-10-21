@@ -64,15 +64,19 @@ est dans [Reproduire l'entraînement](06-reproduire-l-entrainement.md#10-publier
 
 ### L'application en ligne
 
-L'application est aussi publiée, en accès libre, sur le Space Gradio
-**https://huggingface.co/spaces/ingridflogny/SkinDetector**. Son code, dont `probe.npz`,
-y est public : le Space contient donc lui aussi la `NOTICE` et la copie des conditions
-HAI-DEF, et sa fiche reprend les restrictions d'usage et la clause non commerciale.
-L'avertissement « pas un dispositif médical » est affiché en tête de l'interface.
+L'application est aussi publiée, en accès libre, sur le Space
+**https://huggingface.co/spaces/ingridflogny/SkinDetector** : même API et même page que la
+version locale. Son code, dont `probe.npz`, y est public : le Space contient donc lui
+aussi la `NOTICE` et la copie des conditions HAI-DEF, et sa fiche reprend les
+restrictions d'usage et la clause non commerciale. Sur le Space, la page affiche en tête
+un avis d'hébergement : photos analysées par Hugging Face, « pas un dispositif médical »,
+lien vers le classifieur et mention HAI-DEF.
 
 Hébergement gratuit : les Spaces Gradio et Docker demandent désormais un abonnement
 payant à la création. Le Space réutilise un Space Gradio créé avant ce changement, sur le
-matériel CPU Basic gratuit. Rien ne garantit que Hugging Face maintienne cette gratuité.
+matériel CPU Basic gratuit. Il reste déclaré de type Gradio, mais exécute l'application
+FastAPI elle-même (`huggingface/space/space.py`) : l'éditeur d'image de Gradio 6 n'offrait
+pas de recadrage utilisable. Rien ne garantit que Hugging Face maintienne cette gratuité.
 
 ## 3. Données de santé et réglementation
 
@@ -84,10 +88,10 @@ utilisé que des **jeux publics anonymisés**.
 
 Sur le **Space Hugging Face**, c'est différent : les photos sont envoyées aux serveurs de
 Hugging Face, un hébergeur tiers situé hors de l'Union européenne et non certifié HDS.
-Gradio en garde une copie temporaire, effacée après 5 minutes ; l'application ne les
-journalise pas. Le Space ne convient donc qu'à des photos de démonstration, jamais à des
-photos de patients : l'interface demande de ne pas envoyer de photo permettant
-d'identifier une personne.
+L'application ne les conserve ni ne les journalise, mais rien ne garantit ce que fait
+l'infrastructure de Hugging Face. Le Space ne convient donc qu'à des photos de
+démonstration, jamais à des photos de patients : la page demande de ne pas envoyer de
+photo permettant d'identifier une personne.
 
 ### Avant tout usage avec de vrais patients
 

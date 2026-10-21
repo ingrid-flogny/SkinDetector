@@ -1,7 +1,12 @@
-# Mêmes versions que l'application (uv.lock), sauf Pillow (Gradio 6.30 demande
-# pillow < 13) et pydantic, laissé libre : gradio[mcp], installé par le Space, impose
-# pydantic <= 2.12.5. Gradio lui-même est installé par le Space (sdk_version du README).
+# Dépendances de l'application FastAPI (pyproject.toml), aux versions de uv.lock, sauf :
+# - Pillow 12.3 : Gradio 6.30, que le Space installe d'office (sdk_version du README),
+#   demande pillow < 13 ;
+# - pydantic, FastAPI, uvicorn et python-multipart, laissés libres : ce sont aussi des
+#   dépendances de Gradio, qui en fixe les plages (gradio[mcp] impose pydantic <= 2.12.5).
+fastapi
 huggingface-hub==2.2.0
 numpy==2.5.4
 pillow==12.3.0
+python-multipart
 tensorflow==2.21.0
+uvicorn

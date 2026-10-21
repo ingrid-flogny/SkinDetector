@@ -122,11 +122,11 @@ Une page unique, sans framework ni dépendance externe :
    (ancien modèle uniquement), nom du modèle et rappel que l'outil n'est pas un
    dispositif médical.
 
-Sur le Space Hugging Face, l'utilisateur clique sur deux coins opposés de la photo ; un
-aperçu montre la zone qui sera analysée. Comme dans l'application FastAPI, la zone est
-découpée par le serveur dans la photo d'origine, en pleine résolution. L'éditeur d'image
-de Gradio 6 n'est pas utilisé : quand seul son outil de recadrage est activé, sa barre
-d'outils disparaît et il ne reste qu'un curseur de pinceau inutilisable.
+Le Space Hugging Face sert cette même page et cette même API (voir
+[Licences](07-licences-conformite-et-limites.md#lapplication-en-ligne)). Seule
+différence : quand la variable `SPACE_ID`, définie par Hugging Face, est présente, la page
+affiche en tête un avis d'hébergement (photos analysées sur les serveurs de Hugging Face,
+lien vers le classifieur publié, mention HAI-DEF).
 
 Le type de photo est demandé parce que les deux sources n'ont pas du tout la même
 distribution de scores : le seuil adapté au smartphone (0,896) est plus de dix fois plus
@@ -138,14 +138,15 @@ Une photo de lésion est une donnée de santé. L'application :
 
 - ne **journalise** ni la photo ni le score (les messages d'erreur ne contiennent jamais
   le contenu de la requête) ;
-- n'**écrit rien sur disque** : la photo est traitée en mémoire puis oubliée ;
+- ne **conserve** pas la photo : elle n'est gardée que le temps de l'analyse. Au-delà de
+  1 Mo, FastAPI (Starlette) la place dans un fichier temporaire, effacé à la fin de la
+  requête ; en dessous, elle reste en mémoire ;
 - n'envoie la photo à **aucun service extérieur** : le modèle tourne dans le conteneur.
 
 Seul Derm Foundation est téléchargé depuis Hugging Face, une fois, au premier démarrage.
 
-Ces garanties valent pour l'application FastAPI. La version en ligne sur un Space Hugging
-Face traite les photos sur les serveurs de Hugging Face, et Gradio en garde une copie
-temporaire (voir [Licences](07-licences-conformite-et-limites.md#ce-que-fait-lapplication)).
+Le Space Hugging Face exécute la même application, avec les mêmes garanties, mais sur
+les serveurs de Hugging Face (voir [Licences](07-licences-conformite-et-limites.md#ce-que-fait-lapplication)).
 
 ## 5. Configuration
 

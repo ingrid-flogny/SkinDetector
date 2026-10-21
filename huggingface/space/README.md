@@ -6,7 +6,7 @@ colorTo: gray
 sdk: gradio
 sdk_version: 6.30.0
 python_version: "3.12"
-app_file: interface.py
+app_file: space.py
 license: other
 short_description: Score de malignité de lésions cutanées (non médical)
 models:
@@ -26,13 +26,18 @@ au smartphone ou au dermatoscope, avec Derm Foundation (Google) et le classifieu
 
 ## Fonctionnement
 
-- `interface.py` : interface Gradio ;
-- `app/` : le modèle, identique à celui de l'application FastAPI du projet ;
+- `space.py` : lance l'application FastAPI sur le port du Space ;
+- `app/` : l'application elle-même (API, page web, modèle), identique à la version locale
+  du projet ;
 - `app/probe.npz` : le classifieur, dérivé de HAI-DEF (voir `NOTICE`).
 
+Le Space est déclaré de type Gradio pour rester sur le matériel gratuit, mais il n'utilise
+pas l'interface de Gradio : il sert la page de l'application, où l'on encadre la lésion à
+la souris ou au doigt. L'API est aussi accessible : `POST /api/analyses`.
+
 Le secret `HF_TOKEN` du Space donne accès à Derm Foundation, téléchargé au démarrage
-(environ 1,1 Go). Les photos ne sont pas journalisées ; la copie temporaire que garde
-Gradio est effacée après 5 minutes.
+(environ 1,1 Go). Les photos ne sont gardées que le temps de l'analyse ; l'application ne
+les conserve ni ne les journalise.
 
 ## Licence et conditions
 
